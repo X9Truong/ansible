@@ -1,5 +1,9 @@
 ### Role là gì?
 
+Roles là hữu ích khi chúng ta muốn cấu trúc chức năng nhiều phần, các Task liên quan và đóng gói các dữ liệu cần thiết để thực hiện những Task đấy. Ví dụ, cài đặt Nginx có thể liên quan đến việc thêm một Repository package, cài đặt package và thiết lập cấu hình. Chúng ta đã nhìn thấy cài đặt qua một Playbook, nhưng khi chúng ta bắt đầu cài đặt cấu hình của mình, Playbook có xu hướng bận hơn một chút.
+
+Hơn nữa trong cấu hình thực tế thường yêu cầu thêm dữ liệu như các biến, các File và các Template động…Những công cụ này có thể được sử dụng với Playbook nhưng chúng ta có thể làm tốt hơn ngay lập tức bằng cách tổ chức các Task và dữ liệu liên quan thành một cấu trúc mạch lạc như một Role.
+
 Trong Ansible, Role là một cơ chế để tách 1 playbook ra thành nhiều file. Việc này nhằm đơn giản hoá việc viết các playbook phức tạp và có thể tái sử dụng lại nhiều lần 
 
 Role không phải là playbook. Role là một bộ khung (framework) để chia nhỏ playbook thành nhiều files khác nhau. Mỗi role là một thành phần độc lập, bao gồm nhiều variables, tasks, files, templates, và modules bên dưới.
@@ -174,6 +178,82 @@ Handlers dùng để trigger một số thao tác như reload/restart/start stop
 
 <img src="/img/6.png">
 
+```
+- hosts: local
+  connection: local
+  become: yes
+  become_user: root
+  tasks:
+   - name: Install Nginx
+     apt:
+       name: nginx
+       state: installed
+       update_cache: true
+     notify:
+      - Start Nginx
+ 
+  handlers:
+   - name: Start Nginx
+     service:
+       name: nginx
+       state: started
+```	   
+```
+- hosts: local
+  connection: local
+  become: yes
+  become_user: root
+  vars:
+   - docroot: /var/www/serversforhackers.com/public
+  tasks:
+   - name: Add Nginx Repository
+     apt_repository:
+       repo: ppa:nginx/stable
+       state: present
+     register: ppastable
+ 
+   - name: Install Nginx
+     apt:
+       pkg: nginx
+       state: installed
+       update_cache: true
+     when: ppastable|success
+     notify:
+      - Start Nginx
+ 
+   - name: Create Web Root
+     file:
+      path: '{{ docroot }}'
+      mode: 775
+      state: directory
+      owner: www-data
+      group: www-data
+     notify:
+      - Reload Nginx
+ 
+  handlers:
+   - name: Start Nginx
+     service:
+       name: nginx
+       state: started
+ 
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+```
+Bây giờ thì chúng ta có 3 Task:
+
+Add Nginx Repository – Thêm Nginx stable PPA để dùng Version ổn định mới nhất của Nginx sử dụng apt_repository module.
+
+Install Nginx – cài đặt Nginx sử dụng apt module
+
+Create Web Root – Cuối cùng tạo thư mục web root.		
+
+Cũng có những cái mới ở đây là chỉ thị register và when. Những cái này cho Ansible biết để chạy một Task khi có cái gì đó khác xảy ra.
+
+Add Nginx Repository Task đăng ký ppastable. Sau đó chúng ta sử dụng nó để thông báo Install Nginx Task chỉ chạy khi Task ppastable được đăng ký thành công.  Điều này cho phép chúng ta có điều kiện để ngăn chặn Ansible chạy một Task.
+
 
 
 ### Meta
@@ -191,7 +271,7 @@ Nơi chứa các thông tin cần thiết để người khác có thể hiểu 
 Mặc định thì ansible sẽ kiếm role mà các bạn đã viết trong folder /etc/ansible/roles. Hoặc nếu bạn chạy playbook tại /home/cloudcraft/run_task.yml và trong file playbook này có gọi 1 số roles, Ansible sẽ dò các role cần dùng trong /home/cloudcraft/roles. Nếu không có thì Ansible mới dò trong /etc/ansible/roles
 
 
-https://cloudcraft.info/gioi-thieu-ve-ansible/
+
 
 
 
