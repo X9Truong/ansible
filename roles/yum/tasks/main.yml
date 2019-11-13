@@ -1,0 +1,17 @@
+---
+# tasks file for yum
+- name: Keep cached
+  replace: dest=/etc/yum.conf regexp='keepcache=0' replace='keepcache=1' backup=yes
+
+- name: Config line in file
+  lineinfile: dest=/etc/yum.conf line='exclude=kernel*'
+  
+- name: Check config file
+  shell: cat /etc/yum.conf | egrep -v "^$|^#"
+  register: return_from_shell
+  changed_when: no
+
+- name: Show check config
+  debug:
+    msg: "{{ return_from_shell.stdout_lines }}"    
+  
