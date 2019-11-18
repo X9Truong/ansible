@@ -1,0 +1,12 @@
+- name: network
+  service: name=network enabled=yes state=restarted
+  ignore_errors: True
+
+- name: Check resolv.conf
+  shell: cat /etc/resolv.conf
+  register: return_from_shell
+  changed_when: no
+
+- name: show previous shell stdout
+  debug:
+    msg: "{{ return_from_shell.stdout_lines }}"
