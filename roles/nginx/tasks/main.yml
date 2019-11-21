@@ -1,0 +1,8 @@
+- name: nginx repo install
+  yum: name=http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+
+- name: nginx install
+  yum: name=nginx state=installed
+
+- name: start nginx
+  service: name=nginx state=restarted enabled=yes
