@@ -1,4 +1,4 @@
-```
+---
 - name: Enable SELinux
   selinux:
     policy: targeted
@@ -12,4 +12,3 @@
 - name: Disable SELinux
   selinux:
     state: disabled
-```	
