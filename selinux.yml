@@ -12,3 +12,4 @@
 - name: Disable SELinux
   selinux:
     state: disabled
+huan.duong.van@nextop.asia OR anh.luu.duc@nextop.asia OR dung.pham.tuan@nextop.asia OR khanh.pham.duy@nextop.asia OR luan.nguyen.trong@nextop.asia OR linh.hoang.duc@nextop.asia OR Cuong.Nguyen.Chinh@nextop.asia OR chien.tran.van@nextop.asia OR phuong.le.hong@nextop.asia
